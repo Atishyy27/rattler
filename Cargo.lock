@@ -1164,9 +1164,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.4.6"
+version = "1.4.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a3eb0f42d6c360dc3f8a821f6bf2fdea7f72bfd36b3076eb0e6d1e9e0752fff4"
+checksum = "54413ede23c2daf518f35156dfde027feb2374004d63bd497f983c8db9c0e313"
 dependencies = [
  "find-msvc-tools",
  "jobserver",
@@ -2243,9 +2243,9 @@ dependencies = [
 
 [[package]]
 name = "find-msvc-tools"
-version = "0.1.12"
+version = "0.1.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3e0f1c7c3a72c66fd80abe965175f7523475c0489a87d3ff9d6e8c87d87a9d2d"
+checksum = "ef25905e51abafe4dcea6c15fec58c57b601cdbd0ee53d22ea1d3016c587d39b"
 
 [[package]]
 name = "fixedbitset"
@@ -2593,7 +2593,7 @@ dependencies = [
  "google-cloud-wkt",
  "http 1.5.0",
  "pin-project",
- "rand 0.10.2",
+ "rand 0.10.3",
  "serde",
  "serde_json",
  "thiserror 2.0.20",
@@ -4820,7 +4820,7 @@ dependencies = [
  "bytes",
  "getrandom 0.4.3",
  "lru-slab",
- "rand 0.10.2",
+ "rand 0.10.3",
  "rand_pcg",
  "ring",
  "rustc-hash",
@@ -4891,9 +4891,9 @@ dependencies = [
 
 [[package]]
 name = "rand"
-version = "0.10.2"
+version = "0.10.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c7f5fa3a058cd35567ef9bfa5e75732bee0f9e4c55fa90477bef2dfcdbc4be80"
+checksum = "65c9fb96cbc91e3478eaae79a69fcd3f1ae4ad052e471fe6732fff548984b4af"
 dependencies = [
  "chacha20",
  "getrandom 0.4.3",
@@ -4964,7 +4964,7 @@ dependencies = [
 
 [[package]]
 name = "rattler"
-version = "0.49.0"
+version = "0.49.1"
 dependencies = [
  "anyhow",
  "assert_matches",
@@ -4995,7 +4995,7 @@ dependencies = [
  "openidconnect",
  "parking_lot",
  "path_resolver",
- "rand 0.10.2",
+ "rand 0.10.3",
  "rattler_cache",
  "rattler_conda_types",
  "rattler_config",
@@ -5030,7 +5030,7 @@ dependencies = [
 
 [[package]]
 name = "rattler-bin"
-version = "0.4.0"
+version = "0.4.1"
 dependencies = [
  "astral-reqwest-middleware",
  "astral-reqwest-retry",
@@ -5076,7 +5076,7 @@ dependencies = [
 
 [[package]]
 name = "rattler_cache"
-version = "0.10.11"
+version = "0.10.12"
 dependencies = [
  "ahash",
  "anyhow",
@@ -5117,7 +5117,7 @@ dependencies = [
 
 [[package]]
 name = "rattler_conda_types"
-version = "0.53.0"
+version = "0.54.0"
 dependencies = [
  "ahash",
  "assert_matches",
@@ -5142,7 +5142,7 @@ dependencies = [
  "pathdiff",
  "proptest",
  "purl",
- "rand 0.10.2",
+ "rand 0.10.3",
  "rattler_conda_types",
  "rattler_conda_version",
  "rattler_digest",
@@ -5178,7 +5178,7 @@ dependencies = [
  "insta",
  "itertools 0.15.0",
  "nom 8.0.0",
- "rand 0.10.2",
+ "rand 0.10.3",
  "rstest",
  "semver",
  "serde",
@@ -5188,7 +5188,7 @@ dependencies = [
 
 [[package]]
 name = "rattler_config"
-version = "0.7.5"
+version = "0.7.6"
 dependencies = [
  "dirs",
  "fs-err",
@@ -5230,7 +5230,7 @@ dependencies = [
 
 [[package]]
 name = "rattler_git"
-version = "0.3.5"
+version = "0.3.6"
 dependencies = [
  "astral-reqwest-middleware",
  "dashmap",
@@ -5251,7 +5251,7 @@ dependencies = [
 
 [[package]]
 name = "rattler_index"
-version = "0.31.6"
+version = "0.31.7"
 dependencies = [
  "ahash",
  "anyhow",
@@ -5304,7 +5304,7 @@ dependencies = [
 
 [[package]]
 name = "rattler_lock"
-version = "0.33.0"
+version = "0.33.1"
 dependencies = [
  "ahash",
  "file_url",
@@ -5344,7 +5344,7 @@ dependencies = [
 
 [[package]]
 name = "rattler_menuinst"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "configparser",
  "dirs",
@@ -5374,7 +5374,7 @@ dependencies = [
 
 [[package]]
 name = "rattler_networking"
-version = "0.30.9"
+version = "0.30.10"
 dependencies = [
  "ambient-id",
  "anyhow",
@@ -5421,7 +5421,7 @@ dependencies = [
 
 [[package]]
 name = "rattler_package_streaming"
-version = "0.27.6"
+version = "0.27.7"
 dependencies = [
  "assert_matches",
  "astral-reqwest-middleware",
@@ -5501,7 +5501,7 @@ dependencies = [
 
 [[package]]
 name = "rattler_repodata_gateway"
-version = "0.33.5"
+version = "0.33.6"
 dependencies = [
  "ahash",
  "anyhow",
@@ -5580,7 +5580,7 @@ dependencies = [
 
 [[package]]
 name = "rattler_s3"
-version = "0.2.15"
+version = "0.2.16"
 dependencies = [
  "aws-config",
  "aws-credential-types",
@@ -5596,7 +5596,7 @@ dependencies = [
 
 [[package]]
 name = "rattler_sandbox"
-version = "0.2.30"
+version = "0.2.31"
 dependencies = [
  "birdcage",
  "clap",
@@ -5607,7 +5607,7 @@ dependencies = [
 
 [[package]]
 name = "rattler_shell"
-version = "0.28.0"
+version = "0.28.1"
 dependencies = [
  "anyhow",
  "enum_dispatch",
@@ -5628,7 +5628,7 @@ dependencies = [
 
 [[package]]
 name = "rattler_solve"
-version = "9.0.8"
+version = "9.0.9"
 dependencies = [
  "criterion",
  "futures",
@@ -5658,7 +5658,7 @@ dependencies = [
 
 [[package]]
 name = "rattler_upload"
-version = "0.10.9"
+version = "0.11.0"
 dependencies = [
  "astral-reqwest-middleware",
  "astral-reqwest-retry",
@@ -5696,7 +5696,7 @@ dependencies = [
 
 [[package]]
 name = "rattler_virtual_packages"
-version = "7.0.0"
+version = "7.0.1"
 dependencies = [
  "archspec",
  "libloading 0.9.0",
@@ -5970,7 +5970,7 @@ version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dc05fbf560421a0357a750cbe78c7ca19d4923918490daabba313d5dbc871e47"
 dependencies = [
- "rand 0.10.2",
+ "rand 0.10.3",
 ]
 
 [[package]]
@@ -7715,9 +7715,9 @@ checksum = "dbc4bc3a9f746d862c45cb89d705aa10f187bb96c76001afab07a0d35ce60142"
 
 [[package]]
 name = "unicode-ident"
-version = "1.0.25"
+version = "1.0.26"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ab72a15cf68d77cb0987d3684aa8a45c5ef827e8cb49ee2f30bfd7ba2feb519f"
+checksum = "d245f478577f809a851594d02313b640fb437e0bb33866753cff937863096954"
 
 [[package]]
 name = "unicode-normalization"
@@ -7815,7 +7815,7 @@ checksum = "2ef6dac1e96601b4fb3acccccff2139741fcb757cb9a36089bf5be91cfb285ce"
 dependencies = [
  "getrandom 0.4.3",
  "js-sys",
- "rand 0.10.2",
+ "rand 0.10.3",
  "serde_core",
  "wasm-bindgen",
 ]
