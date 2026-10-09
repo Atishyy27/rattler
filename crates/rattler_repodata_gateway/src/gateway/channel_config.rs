@@ -72,8 +72,10 @@ pub struct ChannelConfig {
     /// source configuration this configuration will be used.
     pub default: SourceConfig,
 
-    /// Source configuration on a per-URL basis. This URL is used as a prefix,
-    /// so any channel that starts with the URL uses the configuration.
+    /// Source configuration on a per-URL basis. The URL matches the channel
+    /// itself and any channel below it, on path-segment boundaries, so
+    /// `https://prefix.dev/foo` covers `https://prefix.dev/foo/label/dev` but
+    /// not the sibling `https://prefix.dev/foobar`.
     /// The configuration with the longest matching prefix is used.
     pub per_channel: HashMap<Url, SourceConfig>,
 }
@@ -86,10 +88,16 @@ impl ChannelConfig {
             .iter()
             .filter_map(|(url, config)| {
                 let key_url = url.as_str().strip_suffix('/').unwrap_or(url.as_str());
-                if channel.as_str().starts_with(key_url) {
-                    Some((key_url.len(), config))
-                } else {
-                    None
+                // The remainder has to begin a new path segment. Without this a
+                // key for `.../foo` also matches the sibling channel
+                // `.../foobar`, because the trailing slash was stripped above.
+                // `ChannelUrl` always carries a trailing slash, so an exact
+                // match leaves `/` rather than an empty remainder.
+                match channel.as_str().strip_prefix(key_url) {
+                    Some(rest) if rest.is_empty() || rest.starts_with('/') => {
+                        Some((key_url.len(), config))
+                    }
+                    _ => None,
                 }
             })
             .max_by_key(|(len, _)| *len)
@@ -128,5 +136,68 @@ where
 {
     fn from(config: &rattler_config::config::ConfigBase<T>) -> Self {
         Self::from(&config.common)
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{ChannelConfig, SourceConfig};
+    use rattler_conda_types::ChannelUrl;
+    use url::Url;
+
+    fn config_for(keys: &[(&str, bool)], channel: &str) -> bool {
+        let mut cfg = ChannelConfig {
+            default: SourceConfig::default(),
+            ..ChannelConfig::default()
+        };
+        for (key, zstd) in keys {
+            cfg.per_channel.insert(
+                Url::parse(key).unwrap(),
+                SourceConfig {
+                    zstd_enabled: *zstd,
+                    ..SourceConfig::default()
+                },
+            );
+        }
+        let url: ChannelUrl = Url::parse(channel).unwrap().into();
+        cfg.get(&url).zstd_enabled
+    }
+
+    #[test]
+    fn per_channel_config_matches_the_channel_and_its_children() {
+        // The default has zstd on, so `false` proves the key was applied.
+        assert!(!config_for(
+            &[("https://prefix.dev/conda-forge/", false)],
+            "https://prefix.dev/conda-forge/"
+        ));
+        assert!(!config_for(
+            &[("https://prefix.dev/conda-forge/", false)],
+            "https://prefix.dev/conda-forge/label/dev/"
+        ));
+    }
+
+    #[test]
+    fn per_channel_config_does_not_leak_to_a_sibling_channel() {
+        // `conda-forge-mirror` is a different channel that merely shares a
+        // prefix with `conda-forge`, so it must fall back to the default.
+        assert!(config_for(
+            &[("https://prefix.dev/conda-forge/", false)],
+            "https://prefix.dev/conda-forge-mirror/"
+        ));
+        assert!(config_for(
+            &[("https://example.com/ch/", false)],
+            "https://example.com/ch2/"
+        ));
+    }
+
+    #[test]
+    fn the_longest_matching_prefix_still_wins() {
+        assert!(!config_for(
+            &[
+                ("https://prefix.dev/conda-forge/", true),
+                ("https://prefix.dev/conda-forge/label/dev/", false),
+            ],
+            "https://prefix.dev/conda-forge/label/dev/"
+        ));
     }
 }
