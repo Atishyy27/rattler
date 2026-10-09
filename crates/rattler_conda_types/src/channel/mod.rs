@@ -63,11 +63,29 @@ impl ChannelConfig {
     /// `https://conda.anaconda.org/conda-forge` when the channel alias is
     /// `https://conda.anaconda.org`).
     pub fn strip_channel_alias(&self, base_url: &Url) -> Option<String> {
+        let alias = self.channel_alias_as_dir();
         base_url
             .as_str()
-            .strip_prefix(self.channel_alias.as_str())
+            .strip_prefix(alias.as_str())
             .map(|s| s.trim_matches('/').to_string())
             .filter(|s| !s.is_empty())
+    }
+
+    /// The channel alias with a guaranteed trailing slash, so it names a
+    /// directory rather than a file.
+    ///
+    /// `Url` only adds the slash when the alias is a bare host, so an alias
+    /// configured with a path (`https://example.com/channels`) keeps none.
+    /// Joining a channel name onto that drops the last segment, and stripping
+    /// it as a prefix also matches a sibling (`.../channelsfoo`).
+    fn channel_alias_as_dir(&self) -> Cow<'_, Url> {
+        if self.channel_alias.as_str().ends_with('/') {
+            Cow::Borrowed(&self.channel_alias)
+        } else {
+            let mut url = self.channel_alias.clone();
+            url.set_path(&format!("{}/", url.path()));
+            Cow::Owned(url)
+        }
     }
 
     /// Returns the canonical name of a channel with the given base url.
@@ -114,6 +132,9 @@ impl NamedChannelOrUrl {
             NamedChannelOrUrl::Name(name) => {
                 let mut base_url = config.channel_alias.clone();
                 if let Ok(mut segments) = base_url.path_segments_mut() {
+                    // An alias that already ends in `/` has an empty last
+                    // segment, and pushing after it yields `.../channels//name`.
+                    segments.pop_if_empty();
                     for segment in name.split(&['/', '\\']) {
                         segments.push(segment);
                     }
@@ -314,7 +335,11 @@ impl Channel {
         let name = name.trim_end_matches('/');
         Some(Self {
             platforms: None,
-            base_url: config.channel_alias.join(dir_name.as_ref()).ok()?.into(),
+            base_url: config
+                .channel_alias_as_dir()
+                .join(dir_name.as_ref())
+                .ok()?
+                .into(),
             name: (!name.is_empty()).then_some(name).map(str::to_owned),
         })
     }
@@ -907,6 +932,74 @@ mod tests {
         assert_eq!(
             channel.base_url,
             named.into_channel(&channel_config).unwrap().base_url
+        );
+    }
+
+    /// A channel alias configured with a path keeps no trailing slash from
+    /// `Url`, and both ways of resolving a name against it have to agree.
+    #[test]
+    fn name_resolution_keeps_a_path_based_channel_alias() {
+        for alias in [
+            "https://example.com/channels",
+            "https://example.com/channels/",
+        ] {
+            let config = ChannelConfig {
+                channel_alias: Url::parse(alias).unwrap(),
+                root_dir: std::env::temp_dir(),
+            };
+            let from_name = Channel::from_name("conda-forge", &config);
+            let named = NamedChannelOrUrl::Name("conda-forge".into())
+                .into_base_url(&config)
+                .unwrap();
+            assert_eq!(
+                from_name.base_url.as_str(),
+                "https://example.com/channels/conda-forge/",
+                "alias {alias}"
+            );
+            assert_eq!(
+                from_name.base_url, named,
+                "the two paths disagree for {alias}"
+            );
+        }
+    }
+
+    #[test]
+    fn stripping_a_path_based_alias_does_not_match_a_sibling() {
+        let config = ChannelConfig {
+            channel_alias: Url::parse("https://example.com/channels").unwrap(),
+            root_dir: std::env::temp_dir(),
+        };
+        assert_eq!(
+            config.strip_channel_alias(
+                &Url::parse("https://example.com/channels/conda-forge/").unwrap()
+            ),
+            Some("conda-forge".to_string())
+        );
+        // `channelsfoo` is a different channel that merely shares a prefix.
+        assert_eq!(
+            config.strip_channel_alias(&Url::parse("https://example.com/channelsfoo/").unwrap()),
+            None
+        );
+    }
+
+    #[test]
+    fn the_default_host_alias_is_unchanged() {
+        let config = ChannelConfig::default_with_root_dir(std::env::temp_dir());
+        assert_eq!(
+            Channel::from_name("conda-forge", &config).base_url.as_str(),
+            "https://conda.anaconda.org/conda-forge/"
+        );
+        assert_eq!(
+            config.strip_channel_alias(
+                &Url::parse("https://conda.anaconda.org/conda-forge/").unwrap()
+            ),
+            Some("conda-forge".to_string())
+        );
+        assert_eq!(
+            config.strip_channel_alias(
+                &Url::parse("https://conda.anaconda.org.evil.com/x/").unwrap()
+            ),
+            None
         );
     }
 }
